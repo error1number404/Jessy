@@ -8,5 +8,5 @@ class DiscordServer(SqlAlchemyBase):
     __tablename__ = 'DiscordServer'
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
-    premium_modules = relationship("PremiumModules")
+    premium_modules = relationship("PremiumModule")
 

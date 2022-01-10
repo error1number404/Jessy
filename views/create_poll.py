@@ -7,12 +7,18 @@ from discord import Interaction
 from discord.ext.commands import Context
 from discord.ui import View
 
+from data import db_session
+from data.config import WEBSITE
+from data.premium_modules import PremiumModule
 from utils.check_author import check
 from utils.get_action_object import get_action_object
 from views.add_action import AddActionView
 from views.beutify_answers import BeautifyAnswersView
 from views.choose_action_condition import ActionConditionView
 from views.poll import PollView
+
+db_session.global_init("db/jessy.db")
+db_sess = db_session.create_session()
 
 
 class CreatePollView(View):
@@ -36,11 +42,14 @@ class CreatePollView(View):
         self.lifetime = lifetime
         self.is_button_editing = False
         self.custom_id = f'create_poll_view.{random.randint(0, 9999999)}'
+        self.action_module_bought = bool(db_sess.query(PremiumModule).filter(PremiumModule.guild_id == author.guild.id,
+                                                                             PremiumModule.name == 'poll_actions').first())
         if not any([getattr(author.guild_permissions, item) and getattr(me.guild_permissions, item) for item in
                     ['manage_roles', 'ban_members', 'kick_members', 'manage_nicknames', 'deafen_members',
                      'mute_members',
-                     'move_members']]):
+                     'move_members']]) or not self.action_module_bought:
             self.remove_item(self['add_action'])
+            self.remove_item(self['choose_condition'])
 
     def __iter__(self):
         class iterator(object):
@@ -96,7 +105,9 @@ class CreatePollView(View):
                 await view.end()
             await self.unfreeze(inter_message)
             await inter_message.delete()
-            self.message = await interaction.followup.send("Let's manage it", view=self)
+            self.message = await interaction.followup.send("Let's manage it", embed=Embed(
+                description=f"{f'You can do a lot more with poll actions, check out our website: [{WEBSITE}]({WEBSITE})'}",
+                url=WEBSITE) if not self.action_module_bought else None, view=self)
             return
         except asyncio.exceptions.TimeoutError:
             return await interaction.followup.send(content='Ooops, looks like u didnt send anything 😭',

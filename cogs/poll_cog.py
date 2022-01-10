@@ -1,7 +1,7 @@
-from discord import Option
+from discord import Option, Embed
 from discord.ext import commands
 
-from data.config import MAIN_ROLE
+from data.config import MAIN_ROLE, WEBSITE
 from selects.poll_action import PollActionSelectMenu
 from views.create_poll import CreatePollView
 
@@ -20,7 +20,10 @@ class PollCog(commands.Cog):
         view = CreatePollView(bot=self.bot, question=question,
                               number_of_answers=number_of_answers, author=ctx.author,
                               lifetime=lifetime, ctx=ctx)
-        return await ctx.respond("Let's manage it", view=view)
+        return await ctx.respond("Let's manage it\n", embed=Embed(
+            description=f"{f'You can do a lot more with poll actions, check out our website: [{WEBSITE}]({WEBSITE})'}",
+            url=WEBSITE) if not view.action_module_bought else None,
+                                 view=view)
 
     @create_poll.error
     async def error_handle(self, ctx, error):
