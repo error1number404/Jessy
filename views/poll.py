@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from typing import Union
 
 import discord
 from discord.ui import View
@@ -10,7 +11,8 @@ import random
 
 
 class PollView(View):
-    def __init__(self, bot, buttons, lifetime: int, question: str, author: discord.Member, **kwargs):
+    def __init__(self, bot, buttons, lifetime: int, question: str, author: discord.Member,
+                 result_channel: Union[discord.TextChannel, None], anonymous: bool, **kwargs):
         super().__init__(timeout=None)
         [setattr(self, key, kwargs[key]) for key in kwargs]
         self.question = question
@@ -20,6 +22,8 @@ class PollView(View):
         self.users_in_poll = set()
         self.answers = [set() for _ in range(len(buttons))]
         self.custom_id = f'poll_view.{random.randint(0, 9999999)}'
+        self.result_channel = result_channel
+        self.anonymous = anonymous
         [self.add_item(PollAnswerButton(
             **(item | {'index': index, 'view': self, 'custom_id': f"{item['label']}.{random.randint(0, 9999999)}"})))
             for
@@ -77,18 +81,25 @@ class PollView(View):
                 await poll_message.edit(**edit)
             k += 1
             self.lifetime -= 1
-        self.lifetime = k
         channel = poll_message.channel
-        await poll_message.delete()
-        return await channel.send(embed=await self.get_poll_embed_result())
+        for child in self.children:
+            child.disabled = True
+            child.label = f'{child.label.split("|")[0]} | {round((len(self.answers[child.index]) / len(self.users_in_poll)) * 100) if self.answers[child.index] else 0}%'
+        await poll_message.edit(embed=await self.get_poll_embed(), view=self)
+        self.lifetime = k
+        if not self.result_channel:
+            return await channel.send(embed=await self.get_poll_embed_result())
+        else:
+            return await self.result_channel.send(embed=await self.get_poll_embed_result())
 
     async def get_poll_embed(self):
         embed = discord.Embed(
             title=self.question,
-            description=f'Lifetime : {self.lifetime} seconds',
+            description=f'Lifetime : {self.lifetime} seconds' if self.lifetime else 'Poll is ended',
             colour=discord.Colour.from_rgb(106, 192, 245)
         )
-        embed.set_author(name=self.author.name, icon_url=self.author.avatar.url)
+        if not self.anonymous:
+            embed.set_author(name=self.author.name, icon_url=self.author.avatar.url)
         return embed
 
     async def get_digit_emoji(self, digit):
@@ -106,7 +117,8 @@ class PollView(View):
         embed.description += '\n'.join([
             f'Here is **{len(self.answers[item.index])}** votes for {item.emoji if item.emoji else ""}**{item.label.split(" | ")[0]}**. It is {round((len(self.answers[item.index]) / len(self.users_in_poll)) * 100) if self.answers[item.index] else 0}% of all votes'
             for item in self.children])
-        embed.set_author(name=self.author.name, icon_url=self.author.avatar.url)
+        if not self.anonymous:
+            embed.set_author(name=self.author.name, icon_url=self.author.avatar.url)
         return embed
 
     async def do_actions(self):

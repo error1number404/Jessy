@@ -1,9 +1,10 @@
 import asyncio
 import logging
 import random
+from typing import Union
 
 import discord
-from discord import Interaction
+from discord import Interaction, Embed
 from discord.ext.commands import Context
 from discord.ui import View
 
@@ -23,7 +24,8 @@ db_sess = db_session.create_session()
 
 class CreatePollView(View):
     def __init__(self, author: discord.Member, bot: discord.AutoShardedBot, question: str, number_of_answers: int,
-                 lifetime: int, ctx: Context,
+                 lifetime: int, ctx: Context, text: str, channel: Union[discord.TextChannel, None],
+                 result_channel: Union[discord.TextChannel, None], anonymous: bool,
                  answers=None,
                  now_on=0):
         super().__init__(timeout=None)
@@ -33,6 +35,10 @@ class CreatePollView(View):
         self.author = author
         self.action_on_end = {'action': None, 'action_object': None, 'condition': '-1'}
         self.bot = bot
+        self.text = text
+        self.channel = channel
+        self.anonymous = anonymous
+        self.result_channel = result_channel
         me = self.bot.me(author.guild)
         self.message: discord.Message
         self.question = question
@@ -171,10 +177,13 @@ class CreatePollView(View):
                                                            ephemeral=True)
         try:
             view = PollView(bot=self.bot, buttons=self.answers, lifetime=self.lifetime, author=self.author,
-                            question=self.question, **self.action_on_end)
-            await interaction.response.send_message(embed=await view.get_poll_embed(), view=view)
-            message = await interaction.original_message()
-            await interaction.message.delete()
+                            question=self.question, result_channel=self.result_channel, anonymous=self.anonymous,
+                            **self.action_on_end)
+
+            message = await self.channel.send(content=self.text, embed=await view.get_poll_embed(), view=view)
+
+            # await interaction.message.delete()
+            await self.freeze(interaction.message)
             await view.run_poll(message)
         except BaseException as e:
             logging.error("Exception occurred", exc_info=True)
