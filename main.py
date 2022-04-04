@@ -1,4 +1,6 @@
 import logging
+import os
+import pickle
 from abc import ABC
 from glob import glob
 
@@ -20,8 +22,12 @@ class Jessy(discord.AutoShardedBot, ABC):
     def __init__(self, *args, **options):
         super().__init__(*args, **options)
         self.id = 927550578345795664
+        self.polls = set()
 
     def setup(self):
+        # if 'pools.dat' in os.listdir('saves'):
+        #     with open(f'saves/pools.dat', 'rb') as file:
+        #         self.polls = pickle.load(file)
         for cog in COGS:
             self.load_extension(f"cogs.{cog}")
 
@@ -36,6 +42,11 @@ class Jessy(discord.AutoShardedBot, ABC):
         new_guild = DiscordServer(id=guild.id)
         db_sess.add(new_guild)
         db_sess.commit()
+
+    def close(self):
+        # with open(f'saves/pools.dat', 'wb') as file:
+        #     pickle.dump(self.polls, file)
+        return super().close()
 
     async def on_guild_remove(self, guild):
         db_sess.query(DiscordServer).filter(DiscordServer.id == guild.id).delete()

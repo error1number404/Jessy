@@ -182,9 +182,8 @@ class CreatePollView(View):
 
             message = await self.channel.send(content=self.text, embed=await view.get_poll_embed(), view=view)
 
-            # await interaction.message.delete()
-            await self.freeze(interaction.message)
-            await view.run_poll(message)
+            await interaction.message.delete()
+            return await view.initialize_poll(message)
         except BaseException as e:
             logging.error("Exception occurred", exc_info=True)
 

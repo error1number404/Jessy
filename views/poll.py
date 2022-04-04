@@ -5,6 +5,7 @@ from typing import Union
 import discord
 from discord.ui import View
 from buttons.poll_answer import PollAnswerButton
+from pycord.discord.utils import get
 from utils.apply_action import apply_action
 from utils.get_action_object import get_action_object
 import random
@@ -19,6 +20,7 @@ class PollView(View):
         self.author = author
         self.lifetime = lifetime
         self.bot = bot
+        self.k = 0
         self.users_in_poll = set()
         self.answers = [set() for _ in range(len(buttons))]
         self.custom_id = f'poll_view.{random.randint(0, 9999999)}'
@@ -67,30 +69,34 @@ class PollView(View):
     #     else:
     #         return await interaction.response.send_message('You are not a author of poll', ephemeral=True)
 
-    async def run_poll(self, poll_message):
-        k = 0
-        while self.lifetime:
-            await asyncio.sleep(1)
+    async def initialize_poll(self, poll_message):
+        self.poll_message = poll_message
+        self.poll_message_channel = poll_message.channel
+        self.bot.polls.add(self)
+
+    async def proceed_poll(self):
+        if self.lifetime:
             edit = {}
-            if k % 15 == 0:
-                for child in self.children:
-                    child.label = f'{child.label.split("|")[0]} | {round((len(self.answers[child.index]) / len(self.users_in_poll)) * 100) if self.answers[child.index] else 0}%'
-                edit['view'] = self
-            if k % 5 == 0:
+            # if self.k % 15 == 0:
+            #     for child in self.children:
+            #         child.label = f'{child.label.split("|")[0]} | {round((len(self.answers[child.index]) / len(self.users_in_poll)) * 100) if self.answers[child.index] else 0}%'
+            #     edit['view'] = self
+            if self.k % 5 == 0:
                 edit['embed'] = await self.get_poll_embed()
-                await poll_message.edit(**edit)
-            k += 1
-            self.lifetime -= 1
-        channel = poll_message.channel
-        for child in self.children:
-            child.disabled = True
-            child.label = f'{child.label.split("|")[0]} | {round((len(self.answers[child.index]) / len(self.users_in_poll)) * 100) if self.answers[child.index] else 0}%'
-        await poll_message.edit(embed=await self.get_poll_embed(), view=self)
-        self.lifetime = k
-        if not self.result_channel:
-            return await channel.send(embed=await self.get_poll_embed_result())
+                await self.poll_message.edit(**edit)
+            self.k += 5 if self.lifetime >= 5 else self.lifetime
+            self.lifetime -= 5 if self.lifetime >= 5 else self.lifetime
         else:
-            return await self.result_channel.send(embed=await self.get_poll_embed_result())
+            for child in self.children:
+                child.disabled = True
+                child.label = f'{child.label.split("|")[0]} | {round((len(self.answers[child.index]) / len(self.users_in_poll)) * 100) if self.answers[child.index] else 0}%'
+            await self.poll_message.edit(embed=await self.get_poll_embed(), view=self)
+            self.lifetime = self.k
+            if not self.result_channel:
+                await self.poll_message_channel.send(embed=await self.get_poll_embed_result())
+            else:
+                await self.result_channel.send(embed=await self.get_poll_embed_result())
+            return await self.kill()
 
     async def get_poll_embed(self):
         embed = discord.Embed(
@@ -146,3 +152,7 @@ class PollView(View):
                 await apply_action(action=self.action, data=action_objects, guild=self.author.guild)
         for item in self.children:
             await item.do_action()
+
+    async def kill(self):
+        self.bot.polls.remove(self)
+        del self
