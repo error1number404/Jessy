@@ -5783,3 +5783,87 @@ Traceback (most recent call last):
   File "C:\Users\务蜞颸PycharmProjects\Jessy\venv\lib\site-packages\aiohttp\streams.py", line 616, in read
     await self._waiter
 asyncio.exceptions.CancelledError
+2022-01-10 08:08:43,884 - Exception occurred
+Traceback (most recent call last):
+  File "C:\Users\务蜞颸PycharmProjects\Jessy\views\create_poll.py", line 108, in fill_answers_callback
+    self.message = await interaction.followup.send("Let's manage it", embed=Embed(
+NameError: name 'Embed' is not defined
+2022-01-10 08:08:55,432 - Exception occurred
+Traceback (most recent call last):
+  File "C:\Users\务蜞颸PycharmProjects\Jessy\views\create_poll.py", line 108, in fill_answers_callback
+    self.message = await interaction.followup.send("Let's manage it", embed=Embed(
+NameError: name 'Embed' is not defined
+2022-01-10 08:08:59,920 - Exception occurred
+Traceback (most recent call last):
+  File "C:\Users\务蜞颸PycharmProjects\Jessy\views\create_poll.py", line 108, in fill_answers_callback
+    self.message = await interaction.followup.send("Let's manage it", embed=Embed(
+NameError: name 'Embed' is not defined
+2022-01-10 08:33:09,661 - Exception occurred
+Traceback (most recent call last):
+  File "C:\Users\务蜞颸PycharmProjects\Jessy\views\create_poll.py", line 187, in start_poll_callback
+    await view.run_poll(message)
+  File "C:\Users\务蜞颸PycharmProjects\Jessy\views\poll.py", line 91, in run_poll
+    else:
+AttributeError: 'Option' object has no attribute 'send'
+2022-01-11 11:17:56,857 - Exception occurred
+Traceback (most recent call last):
+  File "C:\Users\务蜞颸PycharmProjects\Jessy\views\create_poll.py", line 186, in start_poll_callback
+    await view.run_poll(message)
+  File "C:\Users\务蜞颸PycharmProjects\Jessy\views\poll.py", line 81, in run_poll
+    await poll_message.edit(**edit)
+  File "C:\Users\务蜞颸PycharmProjects\Jessy\venv\lib\site-packages\discord\message.py", line 1359, in edit
+    data = await self._state.http.edit_message(self.channel.id, self.id, **payload)
+  File "C:\Users\务蜞颸PycharmProjects\Jessy\venv\lib\site-packages\discord\http.py", line 339, in request
+    raise HTTPException(response, data)
+discord.errors.HTTPException: 400 Bad Request (error code: 50035): Invalid Form Body
+In components.0.components.1.label: Must be 80 or fewer in length.
+2022-01-17 09:22:36,273 - Exception occurred
+Traceback (most recent call last):
+  File "C:\Users\务蜞颸PycharmProjects\Jessy\views\create_poll.py", line 186, in start_poll_callback
+    await view.run_poll(message)
+  File "C:\Users\务蜞颸PycharmProjects\Jessy\views\poll.py", line 81, in run_poll
+    await poll_message.edit(**edit)
+  File "C:\Users\务蜞颸PycharmProjects\Jessy\venv\lib\site-packages\discord\message.py", line 1359, in edit
+    data = await self._state.http.edit_message(self.channel.id, self.id, **payload)
+  File "C:\Users\务蜞颸PycharmProjects\Jessy\venv\lib\site-packages\discord\http.py", line 339, in request
+    raise HTTPException(response, data)
+discord.errors.HTTPException: 400 Bad Request (error code: 50035): Invalid Form Body
+In components.0.components.0.label: Must be 80 or fewer in length.
+In components.0.components.1.label: Must be 80 or fewer in length.
+2022-01-17 09:45:08,308 - Exception occurred
+Traceback (most recent call last):
+  File "C:\Users\务蜞颸PycharmProjects\Jessy\views\create_poll.py", line 187, in start_poll_callback
+    await view.run_poll(message)
+  File "C:\Users\务蜞颸PycharmProjects\Jessy\views\poll.py", line 81, in run_poll
+    await poll_message.edit(**edit)
+  File "C:\Users\务蜞颸PycharmProjects\Jessy\venv\lib\site-packages\discord\message.py", line 1359, in edit
+    data = await self._state.http.edit_message(self.channel.id, self.id, **payload)
+  File "C:\Users\务蜞颸PycharmProjects\Jessy\venv\lib\site-packages\discord\http.py", line 339, in request
+    raise HTTPException(response, data)
+discord.errors.HTTPException: 400 Bad Request (error code: 50035): Invalid Form Body
+In components.0.components.1.label: Must be 80 or fewer in length.
+2022-01-27 14:46:03,734 - Exception occurred
+Traceback (most recent call last):
+  File "C:\Users\务蜞颸PycharmProjects\Jessy\views\create_poll.py", line 186, in start_poll_callback
+    await self.freeze(interaction.message)
+  File "C:\Users\务蜞颸PycharmProjects\Jessy\views\create_poll.py", line 193, in freeze
+    await message.edit(view=self)
+  File "C:\Users\务蜞颸PycharmProjects\Jessy\venv\lib\site-packages\discord\message.py", line 1359, in edit
+    data = await self._state.http.edit_message(self.channel.id, self.id, **payload)
+  File "C:\Users\务蜞颸PycharmProjects\Jessy\venv\lib\site-packages\discord\http.py", line 335, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10008): Unknown Message
+2022-02-19 21:40:24,197 - Exception occurred
+Traceback (most recent call last):
+  File "C:\Users\务蜞颸PycharmProjects\Jessy\views\beutify_answers.py", line 131, in button_action_add_callback
+    await asyncio.sleep(1)
+  File "C:\Users\务蜞颸AppData\Local\Programs\Python\Python39\lib\asyncio\tasks.py", line 655, in sleep
+    return await future
+asyncio.exceptions.CancelledError
+2022-02-19 21:40:24,219 - Exception occurred
+Traceback (most recent call last):
+  File "C:\Users\务蜞颸PycharmProjects\Jessy\views\create_poll.py", line 108, in fill_answers_callback
+    await asyncio.sleep(1)
+  File "C:\Users\务蜞颸AppData\Local\Programs\Python\Python39\lib\asyncio\tasks.py", line 655, in sleep
+    return await future
+asyncio.exceptions.CancelledError

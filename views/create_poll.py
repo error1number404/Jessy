@@ -193,13 +193,13 @@ class CreatePollView(View):
 
     async def unfreeze(self, message):
         for item in self.keys():
-            if item == 'fill_answers':
-                self[item].disabled = False if self.now_on != self.number_of_answers else True
-            elif item == 'choose_condition':
-                self[item].disabled = False if self.now_on == self.number_of_answers and self.action_on_end[
-                    'action'] else True
+            if item == 'choose_condition':
+                self[item].disabled = self.now_on != self.number_of_answers or not self.action_on_end['action']
+
+            elif item == 'fill_answers':
+                self[item].disabled = self.now_on == self.number_of_answers
             elif item == 'start_poll':
-                self[item].disabled = False if self.now_on == self.number_of_answers else True
+                self[item].disabled = self.now_on != self.number_of_answers
             else:
                 self[item].disabled = False
         await message.edit(view=self)

@@ -34,14 +34,9 @@ class PollCog(commands.Cog):
                                             description='If True author of poll wouldnt be shown(by default False)',
                                             required=False, default=False)
                           ):
-        view = CreatePollView(bot=self.bot, question=question,
-                              number_of_answers=number_of_answers, author=ctx.author,
-                              lifetime=lifetime, ctx=ctx, text=text, channel=channel if channel else ctx.channel,
-                              result_channel=result_channel if result_channel else ctx.channel, anonymous=anonymous)
-        return await ctx.respond("Let's manage it\n", embed=Embed(
-            description=f"{f'You can do a lot more with poll actions, check out our website: [{WEBSITE}]({WEBSITE})'}",
-            url=WEBSITE) if not view.action_module_bought else None,
-                                 view=view)
+        view = CreatePollView(bot=self.bot, question=question, number_of_answers=number_of_answers, author=ctx.author, lifetime=lifetime, ctx=ctx, text=text, channel=channel or ctx.channel, result_channel=result_channel or ctx.channel, anonymous=anonymous)
+
+        return await ctx.respond("Let's manage it\n", embed=None if view.action_module_bought else Embed(description=f"{f'You can do a lot more with poll actions, check out our website: [{WEBSITE}]({WEBSITE})'}", url=WEBSITE), view=view)
 
     @create_poll.error
     async def error_handle(self, ctx, error):

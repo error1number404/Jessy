@@ -31,13 +31,12 @@ class ActionConditionView(View):
                 return self
 
             def __next__(self):
-                if self.index != len(self.keys) - 1:
-                    self.index += 1
-                    for_return = self.obj[self.custom_id]
-                    self.custom_id = self.keys[self.index]
-                    return for_return
-                else:
+                if self.index == len(self.keys) - 1:
                     raise StopIteration
+                self.index += 1
+                for_return = self.obj[self.custom_id]
+                self.custom_id = self.keys[self.index]
+                return for_return
 
         return iterator(self)
 

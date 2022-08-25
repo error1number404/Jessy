@@ -41,13 +41,12 @@ class BeautifyAnswersView(View):
                 return self
 
             def __next__(self):
-                if self.index != len(self.keys) - 1:
-                    self.index += 1
-                    for_return = self.obj[self.custom_id]
-                    self.custom_id = self.keys[self.index]
-                    return for_return
-                else:
+                if self.index == len(self.keys) - 1:
                     raise StopIteration
+                self.index += 1
+                for_return = self.obj[self.custom_id]
+                self.custom_id = self.keys[self.index]
+                return for_return
 
         return iterator(self)
 
@@ -82,11 +81,11 @@ class BeautifyAnswersView(View):
         if message.reactions:
             button.emoji = message.reactions[0].emoji
             self.result['emoji'] = message.reactions[0].emoji
-            return await interaction.response.edit_message(view=self)
         else:
             button.emoji = None
             self.result['emoji'] = None
-            return await interaction.response.edit_message(view=self)
+
+        return await interaction.response.edit_message(view=self)
 
     @discord.ui.button(label='Primary', style=discord.ButtonStyle.primary, custom_id='primary_check', row=2)
     async def primary_callback(self, button, interaction):
@@ -132,9 +131,8 @@ class BeautifyAnswersView(View):
             result = await action_view.end()
             self.result = self.result | result
             print(self.result)
-            inter = await interaction.followup.send(
-                content=f'⬇️Here is an example how your answer button will looks like, you can change it by pressing style buttons\nIf you want to add emoji, react to this message and then click on answer button',
-                view=self)
+            inter = await interaction.followup.send(content='⬇️Here is an example how your answer button will looks like, you can change it by pressing style buttons\\nIf you want to add emoji, react to this message and then click on answer button', view=self)
+
             self.message = inter
         except BaseException as e:
             logging.error("Exception occurred", exc_info=True)

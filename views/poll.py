@@ -44,13 +44,12 @@ class PollView(View):
                 return self
 
             def __next__(self):
-                if self.index != len(self.keys) - 1:
-                    self.index += 1
-                    for_return = self.obj[self.custom_id]
-                    self.custom_id = self.keys[self.index]
-                    return for_return
-                else:
+                if self.index == len(self.keys) - 1:
                     raise StopIteration
+                self.index += 1
+                for_return = self.obj[self.custom_id]
+                self.custom_id = self.keys[self.index]
+                return for_return
 
         return iterator(self)
 
@@ -84,8 +83,8 @@ class PollView(View):
             if self.k % 5 == 0:
                 edit['embed'] = await self.get_poll_embed()
                 await self.poll_message.edit(**edit)
-            self.k += 5 if self.lifetime >= 5 else self.lifetime
-            self.lifetime -= 5 if self.lifetime >= 5 else self.lifetime
+            self.k += min(self.lifetime, 5)
+            self.lifetime -= min(self.lifetime, 5)
         else:
             for child in self.children:
                 child.disabled = True
@@ -120,17 +119,14 @@ class PollView(View):
             colour=discord.Colour.from_rgb(106, 192, 245)
         )
         embed.description += f'At the end was  **{len(self.users_in_poll)}**  members that actually vote in poll' + '\n\n'
-        embed.description += '\n'.join([
-            f'Here is **{len(self.answers[item.index])}** votes for {item.emoji if item.emoji else ""}**{item.label.split(" | ")[0]}**. It is {round((len(self.answers[item.index]) / len(self.users_in_poll)) * 100) if self.answers[item.index] else 0}% of all votes'
-            for item in self.children])
+        embed.description += '\n'.join([f"""Here is **{len(self.answers[item.index])}** votes for {item.emoji or ''}**{item.label.split(" | ")[0]}**. It is {round((len(self.answers[item.index]) / len(self.users_in_poll)) * 100) if self.answers[item.index] else 0}% of all votes""" for item in self.children])
+
         if not self.anonymous:
             embed.set_author(name=self.author.name, icon_url=self.author.avatar.url)
         return embed
 
     async def do_actions(self):
-        keys = None
-        if type(self.action_object) is dict:
-            keys = [key for key in self.action_object]
+        keys = list(self.action_object) if type(self.action_object) is dict else None
         if self.action is None:
             pass
         elif keys and (keys[0].isnumeric() or keys[0].split()[0].isnumeric()):

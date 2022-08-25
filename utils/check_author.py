@@ -1,7 +1,5 @@
 def check(author):
     def inner_check(message):
-        if message.author != author:
-            return False
-        return True
+        return message.author == author
 
     return inner_check

@@ -16,8 +16,8 @@ class AdditionalSelectMenu(discord.ui.Select):
         self.main_view = main_view
         row = 4
         options = self.get_options()
-        if self.action in ['members_with_role', 'member', 'add_role', 'remove_role']:
-            max_values = 5 if len(options) > 5 else len(options)
+        if self.action in {'members_with_role', 'member', 'add_role', 'remove_role'}:
+            max_values = min(len(options), 5)
         else:
             max_values = 1
         context = {'role': ['members_with_role'], 'member': ['member', 'add_role', 'remove_role'],
